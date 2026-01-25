@@ -143,9 +143,17 @@ export function Navigator({ id }: { id: string }) {
         </TabsList>
       </Tabs>
       <ScrollArea className='h-[calc(100vh-100px)]'>
-        <div className='flex flex-col gap-1 p-1'>
-          {Tree.map((item) => renderItem(item))}
-        </div>
+        {isLoading ? (
+          <div className='flex flex-col gap-4 p-6'>
+            {Array.from({ length: 10 }).map((_, i) => (
+              <Skeleton key={i} className='w-full h-4' />
+            ))}
+          </div>
+        ) : (
+          <div className='flex flex-col gap-1 p-1'>
+            {Tree.map((item) => renderItem(item))}
+          </div>
+        )}
       </ScrollArea>
     </>
   );
