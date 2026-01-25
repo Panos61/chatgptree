@@ -20,7 +20,7 @@ ChatGPTree adds a Reddit-style thread navigation system to AI conversations, all
 
 ## Tech Stack
 
-- **Frontend**: Next.js 14, React, Tailwind CSS, shadcn/ui
+- **Frontend**: Next.js 16, React, Tailwind CSS, shadcn/ui
 - **Backend API**: Node.js (Next.js API routes)
 - **Microservices**: Go
 - **AI**: Vercel AI SDK
