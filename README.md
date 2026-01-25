@@ -18,14 +18,6 @@ ChatGPTree adds a Reddit-style thread navigation system to AI conversations, all
 - [ ] Personas - Customizable AI personalities
 - [ ] Project Creation - Organize conversations into projects
 
-## Architecture
-
-This is a monorepo with two main components:
-├── apps/
-│ └── web/ # Next.js 16 frontend + CRUD API
-└── services/
-└── threads/ # Go microservice for thread navigation
-
 ## Tech Stack
 
 - **Frontend**: Next.js 14, React, Tailwind CSS, shadcn/ui
