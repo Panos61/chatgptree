@@ -13,85 +13,76 @@ import { CircleDotIcon, CircleIcon } from 'lucide-react';
 import { Separator } from '../ui/separator';
 import { Skeleton } from '../ui/skeleton';
 import { ScrollArea } from '../ui/scroll-area';
-import { useEffect } from 'react';
 
-type TreeItem = { name: string } | { name: string; items: TreeItem[] };
+type Navigator = {
+  id: string;
+  chatId: string;
+  chatTitle: string;
+  updatedAt: string;
+};
+
+type NavigatorEntry = {
+  id: string;
+  navigatorId: string;
+  chatId: string;
+  assistantMessageId: string;
+  userMessageId: string;
+  label: string;
+  anchor: string;
+  sections: NavigatorSection[];
+};
+
+type NavigatorSection = {
+  id: string;
+  navigatorId: string;
+  parentId: string | null;
+  assistantMessageId: string;
+  label: string;
+  anchor: string;
+  level: number;
+};
+
+type NavigatorData = {
+  navigator: Navigator;
+  entries: NavigatorEntry[];
+};
 
 export function Navigator({ id }: { id: string }) {
-  console.log('id', id);
-  const { data, isLoading, mutate } = useSWR(
-    id ? `http://localhost:8080/navigator/${id}` : null,
+  const { data, isLoading } = useSWR<NavigatorData>(
+    id ? `http://localhost:8080/navigator/by-chat/${id}` : null,
     fetcher,
     {
       revalidateOnMount: true,
-    }
+    },
   );
+  console.log('data', data);
 
-  useEffect(() => {
-    if (id) {
-      mutate(`http://localhost:8080/navigator/${id}`);
-    }
-  }, [id]);
+  const renderEntry = (entry: NavigatorEntry) => {
+    return (
+      <Collapsible key={entry.id}>
+        <CollapsibleTrigger asChild>
+          <Button
+            variant='ghost'
+            size='sm'
+            className='group hover:bg-accent hover:text-accent-foreground w-full justify-start transition-none'
+          >
+            <CircleIcon className='text-muted-foreground size-3!' />
+            {entry.label}
+          </Button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className='style-lyra:ml-4 mt-1 ml-5'>
+          <div className='flex flex-col gap-1'>
+            {entry.sections?.map((section) => renderSections(section))}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+    );
+  };
 
-  const Tree: TreeItem[] = [
-    {
-      name: 'Getting Hired',
-      items: [
-        { name: 'Build a Strong Foundation' },
-        { name: 'Prepare Your Application' },
-        { name: 'Ace the Interview' },
-        { name: 'Interview Process' },
-        { name: 'Preparation Tips' },
-      ],
-    },
-    {
-      name: 'Skills at Uber',
-      items: [
-        {
-          name: 'Frontend Development',
-          items: [
-            { name: 'React' },
-            { name: 'Next.js' },
-            { name: 'Tailwind CSS' },
-            { name: 'TypeScript' },
-          ],
-        },
-        { name: 'Backend Development' },
-        { name: 'Database' },
-        { name: 'DevOps' },
-        { name: 'Cloud Computing' },
-      ],
-    },
-    {
-      name: 'Succeeding at Uber',
-      items: [
-        { name: 'Understand the Culture' },
-        { name: 'Key Skills & Focus Areas' },
-        { name: 'Growth & Development' },
-      ],
-    },
-    {
-      name: 'Company Culture',
-      items: [
-        { name: 'Understand the Culture' },
-        { name: 'Key Skills & Focus Areas' },
-        { name: 'Growth & Development' },
-      ],
-    },
-    {
-      name: 'Resources',
-      items: [
-        { name: 'Uber Career Resources' },
-        { name: 'Uber Careers Blog' },
-        { name: 'Uber Careers Podcast' },
-      ],
-    },
-  ];
-
-  const renderItem = (fileItem: TreeItem) => {
-    if ('items' in fileItem) {
+  const renderSections = (section: NavigatorSection) => {
+    if ('items' in section) {
       return (
-        <Collapsible key={fileItem.name}>
+        <Collapsible key={section.id}>
           <CollapsibleTrigger asChild>
             <Button
               variant='ghost'
@@ -100,26 +91,26 @@ export function Navigator({ id }: { id: string }) {
             >
               {/* <ChevronRightIcon className='size-3! transition-transform group-data-[state=open]:rotate-90' /> */}
               <CircleIcon className='text-muted-foreground size-3!' />
-              {fileItem.name}
+              {section.label}
             </Button>
           </CollapsibleTrigger>
-          <CollapsibleContent className='style-lyra:ml-4 mt-1 ml-5'>
+          {/* <CollapsibleContent className='style-lyra:ml-4 mt-1 ml-5'>
             <div className='flex flex-col gap-1'>
               {fileItem.items.map((child) => renderItem(child))}
-            </div>
-          </CollapsibleContent>
+             </div> 
+          </CollapsibleContent> */}
         </Collapsible>
       );
     }
     return (
       <Button
-        key={fileItem.name}
+        key={section.id}
         variant='link'
         size='sm'
         className='text-foreground w-full justify-start gap-2'
       >
         <CircleDotIcon className='text-muted-foreground size-3!' />
-        <span className='text-muted-foreground text-sm'>{fileItem.name}</span>
+        <span className='text-muted-foreground text-sm'>{section.label}</span>
       </Button>
     );
   };
@@ -132,7 +123,7 @@ export function Navigator({ id }: { id: string }) {
             <Skeleton className='w-full h-4' />
           ) : (
             <span className='font-semibold text-sm overflow-hidden text-ellipsis min-w-0 line-clamp-1'>
-              {data?.chatTitle}
+              {data?.navigator.chatTitle}
             </span>
           )}
         </div>
@@ -151,7 +142,7 @@ export function Navigator({ id }: { id: string }) {
           </div>
         ) : (
           <div className='flex flex-col gap-1 p-1'>
-            {Tree.map((item) => renderItem(item))}
+            {data?.entries.map((entry) => renderEntry(entry))}
           </div>
         )}
       </ScrollArea>

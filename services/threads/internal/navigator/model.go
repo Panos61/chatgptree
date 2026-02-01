@@ -1,33 +1,39 @@
 package navigator
 
 import (
-	"threads/internal/threads"
 	"time"
 )
 
 type Navigator struct {
-	ID        string `json:"id"`
-	ChatID    string `json:"chatId"`
-	ChatTitle string `json:"chatTitle"`
-	// Turns     []Turn    `json:"turns,omitempty"`
+	ID        string    `json:"id"`
+	ChatID    string    `json:"chatId"`
+	ChatTitle string    `json:"chatTitle"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-type Turn struct {
-	ID        string           `json:"id"`
-	Question  string           `json:"userMessage"`
-	Response  string           `json:"assistantMessage"`
-	Threads   []threads.Thread `json:"threads"`
-	Sections  []Section        `json:"sections"`
-	UpdatedAt time.Time        `json:"updated_at"`
+type NavEntry struct {
+	ID                 string       `json:"id"`
+	NavigatorID        string       `json:"navigatorId"`
+	ChatID             string       `json:"chatId"`
+	AssistantMessageID string       `json:"assistantMessageId"`
+	UserMessageID      string       `json:"userMessageId"`
+	Label              string       `json:"label"`
+	Anchor             string       `json:"anchor,omitempty"`
+	OrderIndex         int          `json:"orderIndex,omitempty"`
+	CreatedAt          time.Time    `json:"createdAt"`
+	UpdatedAt          time.Time    `json:"updatedAt"`
+	Sections           []NavSection `json:"sections,omitempty" db:"-"`
 }
 
-type Section struct {
-	ID        string    `json:"id"`
-	Label     string    `json:"label"`
-	Anchor    string    `json:"anchor"`
-	Level     int       `json:"level"`
-	Order     int       `json:"order"`
-	ParentID  *string   `json:"parent_id"`
-	UpdatedAt time.Time `json:"updated_at"`
+type NavSection struct {
+	ID                 string    `json:"id"`
+	NavigatorID        string    `json:"navigatorId"`
+	ParentID           *string   `json:"parentId,omitempty"`
+	AssistantMessageID string    `json:"assistantMessageId"`
+	Label              string    `json:"label"`
+	Anchor             string    `json:"anchor"`
+	Level              int       `json:"level"`
+	OrderIndex         int       `json:"orderIndex"`
+	CreatedAt          time.Time `json:"createdAt"`
+	UpdatedAt          time.Time `json:"updatedAt"`
 }

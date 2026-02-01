@@ -4,18 +4,25 @@ import (
 	"bytes"
 	"regexp"
 
+	"github.com/google/uuid"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/ast"
-	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/text"
 )
 
-func ExtractSections(response string) ([]Section, error) {
-	mdParser := goldmark.New(goldmark.WithParserOptions(parser.WithAutoHeadingID()))
+func ExtractSections(response string, navigatorID string, assistantMessageID string) ([]NavSection, string, error) {
+	mdParser := goldmark.New()
 	reader := text.NewReader([]byte(response))
 	doc := mdParser.Parser().Parse(reader)
 
-	var sections []Section
+	var (
+		sections   []NavSection
+		orderIndex = 0
+		lastH2ID   *string
+		parentID   *string
+		entryLabel string
+		gotLabel   bool
+	)
 
 	ast.Walk(doc, func(node ast.Node, entering bool) (ast.WalkStatus, error) {
 		if !entering {
@@ -31,17 +38,49 @@ func ExtractSections(response string) ([]Section, error) {
 			return ast.WalkContinue, nil
 		}
 
-		text := extractText(response, heading)
+		raw := extractText(response, heading)
+		sectionID := uuid.New().String()
+		anchor := "a--" + assistantMessageID
+		label := cleanHeaderTitle(raw)
+		orderIndex++
 
-		sections = append(sections, Section{
-			Label: cleanHeaderTitle(text),
-			Level: heading.Level,
-		})
+		if !gotLabel && (heading.Level == 1 || heading.Level == 2) && label != "" {
+			entryLabel = label
+			gotLabel = true
+
+			if heading.Level == 2 {
+				synthetic := uuid.New().String()
+				lastH2ID = &synthetic
+			}
+			return ast.WalkContinue, nil
+		}
+
+		if entryLabel != "" {
+			switch heading.Level {
+			case 2:
+				id := sectionID
+				lastH2ID = &id
+				parentID = nil
+			case 3:
+				parentID = lastH2ID
+			}
+
+			sections = append(sections, NavSection{
+				ID:                 sectionID,
+				NavigatorID:        navigatorID,
+				ParentID:           parentID,
+				AssistantMessageID: assistantMessageID,
+				Label:              label,
+				Anchor:             anchor,
+				Level:              heading.Level,
+				OrderIndex:         orderIndex,
+			})
+		}
 
 		return ast.WalkContinue, nil
 	})
 
-	return sections, nil
+	return sections, entryLabel, nil
 }
 
 func extractText(source string, n ast.Node) string {

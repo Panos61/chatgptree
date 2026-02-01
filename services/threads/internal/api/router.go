@@ -11,7 +11,8 @@ func InitializeRoutes(app *App) *http.ServeMux {
 
 	mux.HandleFunc("/threads/append", handlers.AppendResponse)
 	mux.Handle("/navigator", middleware.CorsMiddleware(http.HandlerFunc(app.NavigatorHandler.Create)))
-	mux.Handle("/navigator/{id}", middleware.CorsMiddleware(http.HandlerFunc(app.NavigatorHandler.GetByChatID)))
+	mux.Handle("/navigator/by-chat/{chatId}", middleware.CorsMiddleware(http.HandlerFunc(app.NavigatorHandler.GetByChatID)))
+	mux.Handle("/navigator/id/{chatId}/entries", middleware.CorsMiddleware(http.HandlerFunc(app.NavigatorHandler.AddEntry)))
 
 	return mux
 }

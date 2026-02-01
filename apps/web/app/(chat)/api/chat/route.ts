@@ -48,7 +48,13 @@ function getStreamContext() {
 
 export { getStreamContext };
 
-async function createNavigator(chatId: string, chatTitle: string) {
+async function createNavigator(
+  chatId: string,
+  chatTitle: string,
+  userMessageId: string,
+  assistantMessageId: string,
+  assistantMessage: string,
+) {
   if (!process.env.THREADS_SERVICE_URL) {
     console.error('THREADS_SERVICE_URL is not set');
     return;
@@ -63,6 +69,9 @@ async function createNavigator(chatId: string, chatTitle: string) {
       body: JSON.stringify({
         chatId: chatId,
         chatTitle: chatTitle,
+        userMessageId: userMessageId,
+        assistantMessageId: assistantMessageId,
+        assistantMessage: assistantMessage,
       }),
     });
   } catch (error) {
@@ -71,10 +80,46 @@ async function createNavigator(chatId: string, chatTitle: string) {
   }
 }
 
-async function forwardResponseToThread(
-  userMessage: string,
-  assistantMessage: string
+async function addNavEntry(
+  navigatorId: string,
+  chatId: string,
+  userMessageId: string,
+  assistantMessageId: string,
+  assistantMessage: string,
 ) {
+  if (!process.env.THREADS_SERVICE_URL) {
+    console.error('THREADS_SERVICE_URL is not set');
+    return;
+  }
+
+  try {
+    await fetch(
+      `${process.env.THREADS_SERVICE_URL}/navigator/id/${navigatorId}/entries`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: navigatorId,
+          navigatorId: navigatorId,
+          chatId: chatId,
+          assistantMessageId: assistantMessageId,
+          userMessageId: userMessageId,
+          assistantMessage: assistantMessage,
+        }),
+      },
+    ).catch((err) => {
+      console.error('Error adding nav entry:', err);
+      return;
+    });
+  } catch (error) {
+    console.error('Error adding nav entry:', error);
+    return;
+  }
+}
+
+async function appendToThread(userMessage: string, assistantMessage: string) {
   if (!process.env.THREADS_SERVICE_URL) {
     console.error('THREADS_SERVICE_URL is not set');
     return;
@@ -89,11 +134,8 @@ async function forwardResponseToThread(
       body: JSON.stringify({
         userMessage: userMessage,
         assistantMessage: assistantMessage,
-        // timestamp: new Date().toISOString(),
       }),
     });
-
-    // console.log('response from thread', userMessage, assistantMessage);
   } catch (error) {
     console.error('Error forwarding response to thread:', error);
     return;
@@ -152,10 +194,6 @@ export async function POST(request: Request) {
         visibility: selectedVisibilityType,
       });
       titlePromise = generateTitleFromUserMessage({ message });
-      const chatTitle = titlePromise ? await titlePromise : 'New chat';
-      console.log('chatTitle', chatTitle);
-      await createNavigator(id, chatTitle);
-      console.log('navigator created');
     }
 
     const uiMessages = isToolApprovalFlow
@@ -237,8 +275,21 @@ export async function POST(request: Request) {
       },
       generateId: generateUUID,
       onFinish: async ({ messages: finishedMessages }) => {
+        if (!chat && finishedMessages.length > 0) {
+          const assistantMessage = finishedMessages[0].parts
+            .map((part) => (part.type === 'text' ? part.text : ''))
+            .join('');
+          const title = titlePromise ? await titlePromise : 'New chat';
+
+          await createNavigator(
+            id,
+            title,
+            message?.id ?? '',
+            finishedMessages[0].id,
+            assistantMessage,
+          );
+        }
         if (isToolApprovalFlow) {
-          console.log('isToolApprovalFlow', isToolApprovalFlow);
           for (const finishedMsg of finishedMessages) {
             const existingMsg = uiMessages.find((m) => m.id === finishedMsg.id);
             if (existingMsg) {
@@ -265,7 +316,7 @@ export async function POST(request: Request) {
           const responseText = finishedMessages.map((currentMessage) =>
             currentMessage.parts
               .map((part) => (part.type === 'text' ? part.text : ''))
-              .join('')
+              .join(''),
           );
 
           const userMessage =
@@ -274,7 +325,14 @@ export async function POST(request: Request) {
               .join('') ?? '';
           const assistantMessage = responseText.join('') ?? '';
 
-          await forwardResponseToThread(userMessage, assistantMessage);
+          await addNavEntry(
+            id,
+            id,
+            message?.id ?? '',
+            finishedMessages[0].id,
+            assistantMessage,
+          );
+          await appendToThread(userMessage, assistantMessage);
           await saveMessages({
             messages: finishedMessages.map((currentMessage) => ({
               id: currentMessage.id,
@@ -290,9 +348,6 @@ export async function POST(request: Request) {
       onError: () => 'Oops, an error occurred!',
     });
 
-    // const [threadStream, tapStream] = stream.tee();
-    // void forwardTextDeltasToThread(tapStream);
-
     return createUIMessageStreamResponse({
       stream,
       async consumeSseStream({ stream: sseStream }) {
@@ -306,7 +361,7 @@ export async function POST(request: Request) {
             await createStreamId({ streamId, chatId: id });
             await streamContext.createNewResumableStream(
               streamId,
-              () => sseStream
+              () => sseStream,
             );
           }
         } catch (_) {
@@ -324,7 +379,7 @@ export async function POST(request: Request) {
     if (
       error instanceof Error &&
       error.message?.includes(
-        'AI Gateway requires a valid credit card on file to service requests'
+        'AI Gateway requires a valid credit card on file to service requests',
       )
     ) {
       return new ChatSDKError('bad_request:activate_gateway').toResponse();

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"threads/internal/navigator"
 )
 
 func AppendResponse(w http.ResponseWriter, r *http.Request) {
@@ -25,21 +24,6 @@ func AppendResponse(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// fmt.Printf("responseText: %+v\n", bodyReq.ResponseText)
-
-	turn := &navigator.Turn{
-		Question: bodyReq.Question,
-		Response: bodyReq.Response,
-	}
-
-	// fmt.Printf("turn: %+v\n", turn)
-
-	test, err := navigator.ApplyTurn(bodyReq.Response, turn)
-	// if err != nil {
-	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 	return
-	// }
-
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(fmt.Sprintf("OK: %+v", test)))
+	w.Write([]byte(fmt.Sprintf("OK: %+v", "test")))
 }
