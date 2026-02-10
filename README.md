@@ -16,12 +16,11 @@ This project is currently being developed mainly for personal use. To be honest,
 - **Scalable Architecture** - Build with microservices for maintainability and performance
 - **Enhanced AI Interaction** - Support multiple personas and project-based conversations
 
-## Features
+## WIP Features
 
 - **Thread Navigation** - Reddit-like conversation threading to keep discussions organized
 - **Branching Conversations** - Create new branches from any point in a conversation
 - **Message Management** - Delete questions and responses from conversations (note: with the cost of affecting AI context)
-- **AI-Powered Chat** - Built on the Vercel AI SDK with support for multiple model providers
 
 ### Planned Features
 
