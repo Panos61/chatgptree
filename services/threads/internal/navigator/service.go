@@ -26,14 +26,14 @@ func (s *NavigatorService) GetByChatID(ctx context.Context, chatID string) (*Nav
 }
 
 func (s *NavigatorService) Create(ctx context.Context, chatID string, chatTitle string) (*Navigator, error) {
-	newNavigator := &Navigator{
+	navigator := &Navigator{
 		ID:        uuid.New().String(),
 		ChatID:    chatID,
 		ChatTitle: chatTitle,
 		UpdatedAt: time.Now(),
 	}
 
-	_, err := s.navigatorRepo.Create(ctx, newNavigator)
+	newNavigator, err := s.navigatorRepo.Create(ctx, navigator)
 	if err != nil {
 		return nil, err
 	}

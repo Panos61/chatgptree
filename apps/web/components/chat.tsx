@@ -136,6 +136,10 @@ export function Chat({
     },
     onFinish: () => {
       mutate(unstable_serialize(getChatHistoryPaginationKey));
+
+      if (!autoResume && initialMessages.length === 0) {
+        router.replace(`/chat/${id}`);
+      }
     },
     onError: (error) => {
       if (error instanceof ChatSDKError) {

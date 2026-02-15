@@ -53,9 +53,11 @@ export function Navigator({ id }: { id: string }) {
     fetcher,
     {
       revalidateOnMount: true,
-    },
+      revalidateOnFocus: true,
+      shouldRetryOnError: true,
+      errorRetryInterval: 5000,
+    }
   );
-  console.log('data', data);
 
   const renderEntry = (entry: NavigatorEntry) => {
     return (

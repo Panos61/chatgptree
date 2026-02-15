@@ -53,7 +53,7 @@ async function createNavigator(
   chatTitle: string,
   userMessageId: string,
   assistantMessageId: string,
-  assistantMessage: string,
+  assistantMessage: string
 ) {
   if (!process.env.THREADS_SERVICE_URL) {
     console.error('THREADS_SERVICE_URL is not set');
@@ -85,7 +85,7 @@ async function addNavEntry(
   chatId: string,
   userMessageId: string,
   assistantMessageId: string,
-  assistantMessage: string,
+  assistantMessage: string
 ) {
   if (!process.env.THREADS_SERVICE_URL) {
     console.error('THREADS_SERVICE_URL is not set');
@@ -108,7 +108,7 @@ async function addNavEntry(
           userMessageId: userMessageId,
           assistantMessage: assistantMessage,
         }),
-      },
+      }
     ).catch((err) => {
       console.error('Error adding nav entry:', err);
       return;
@@ -267,28 +267,53 @@ export async function POST(request: Request) {
 
         dataStream.merge(result.toUIMessageStream({ sendReasoning: true }));
 
+        const [title, response] = await Promise.all([
+          titlePromise || Promise.resolve('New chat'),
+          result.response,
+        ]);
+
+        const finishedMessages = response.messages as any[];
+        const assistantMessageId = response.id;
+
         if (titlePromise) {
-          const title = await titlePromise;
           dataStream.write({ type: 'data-chat-title', data: title });
           updateChatTitleById({ chatId: id, title });
         }
-      },
-      generateId: generateUUID,
-      onFinish: async ({ messages: finishedMessages }) => {
+
+        if (chat && finishedMessages.length > 0) {
+          const assistantMessage = finishedMessages[0].content
+            ? (finishedMessages[0].content as any[])
+                .map((part: any) => (part.type === 'text' ? part.text : ''))
+                .join('')
+            : (finishedMessages[0] as any).text || '';
+
+          await addNavEntry(
+            id,
+            id,
+            message?.id ?? '',
+            assistantMessageId,
+            assistantMessage
+          );
+        }
+
         if (!chat && finishedMessages.length > 0) {
-          const assistantMessage = finishedMessages[0].parts
-            .map((part) => (part.type === 'text' ? part.text : ''))
-            .join('');
-          const title = titlePromise ? await titlePromise : 'New chat';
+          const assistantMessage = finishedMessages[0].content
+            ? (finishedMessages[0].content as any[])
+                .map((part: any) => (part.type === 'text' ? part.text : ''))
+                .join('')
+            : (finishedMessages[0] as any).text || '';
 
           await createNavigator(
             id,
             title,
             message?.id ?? '',
-            finishedMessages[0].id,
-            assistantMessage,
+            assistantMessageId,
+            assistantMessage
           );
         }
+      },
+      generateId: generateUUID,
+      onFinish: async ({ messages: finishedMessages }) => {
         if (isToolApprovalFlow) {
           for (const finishedMsg of finishedMessages) {
             const existingMsg = uiMessages.find((m) => m.id === finishedMsg.id);
@@ -316,7 +341,7 @@ export async function POST(request: Request) {
           const responseText = finishedMessages.map((currentMessage) =>
             currentMessage.parts
               .map((part) => (part.type === 'text' ? part.text : ''))
-              .join(''),
+              .join('')
           );
 
           const userMessage =
@@ -325,13 +350,6 @@ export async function POST(request: Request) {
               .join('') ?? '';
           const assistantMessage = responseText.join('') ?? '';
 
-          await addNavEntry(
-            id,
-            id,
-            message?.id ?? '',
-            finishedMessages[0].id,
-            assistantMessage,
-          );
           await appendToThread(userMessage, assistantMessage);
           await saveMessages({
             messages: finishedMessages.map((currentMessage) => ({
@@ -361,7 +379,7 @@ export async function POST(request: Request) {
             await createStreamId({ streamId, chatId: id });
             await streamContext.createNewResumableStream(
               streamId,
-              () => sseStream,
+              () => sseStream
             );
           }
         } catch (_) {
@@ -379,7 +397,7 @@ export async function POST(request: Request) {
     if (
       error instanceof Error &&
       error.message?.includes(
-        'AI Gateway requires a valid credit card on file to service requests',
+        'AI Gateway requires a valid credit card on file to service requests'
       )
     ) {
       return new ChatSDKError('bad_request:activate_gateway').toResponse();
