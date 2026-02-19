@@ -45,10 +45,36 @@ const PurePreviewMessage = ({
   requiresScrollPadding: boolean;
 }) => {
   const [mode, setMode] = useState<'view' | 'edit'>('view');
-
   const attachmentsFromMessage = message.parts.filter(
     (part) => part.type === 'file'
   );
+
+  // useEffect(() => {
+  //   // Only update for user messages
+  //   if (message.role !== 'user') return;
+
+  //   if (inView && entry) {
+  //     // Check if this message is significantly in view (at least 60%)
+  //     const intersectionRatio = entry.intersectionRatio || 0;
+
+  //     if (intersectionRatio >= 0.6 && !isLoading) {
+  //       const questionText =
+  //         message.parts[0]?.type === 'text' ? message.parts[0].text : '';
+
+  //       setCurrentMessage({
+  //         id: message.id,
+  //         text: questionText,
+  //       });
+  //     }
+  //   }
+  // }, [
+  //   inView,
+  //   entry?.intersectionRatio,
+  //   message.id,
+  //   message.role,
+  //   message.parts,
+  //   setCurrentMessage,
+  // ]);
 
   useDataStream();
 
@@ -57,6 +83,7 @@ const PurePreviewMessage = ({
       className='group/message fade-in w-full animate-in duration-200'
       data-role={message.role}
       data-testid={`message-${message.role}`}
+      data-message-id={message.id}
     >
       <div
         className={cn('flex w-full items-start gap-2 md:gap-3', {

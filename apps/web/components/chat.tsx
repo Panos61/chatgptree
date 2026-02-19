@@ -20,6 +20,7 @@ import {
 import { useArtifactSelector } from '@/hooks/use-artifact';
 import { useAutoResume } from '@/hooks/use-auto-resume';
 import { useChatVisibility } from '@/hooks/use-chat-visibility';
+import { CurrentMessageContext } from '@/hooks/use-current-message';
 import type { Vote } from '@/lib/db/schema';
 import { ChatSDKError } from '@/lib/errors';
 import type { Attachment, ChatMessage } from '@/lib/types';
@@ -189,8 +190,15 @@ export function Chat({
     setMessages,
   });
 
+  const [currentMessage, setCurrentMessage] = useState<{
+    id: string;
+    text: string;
+  } | null>(null);
+
   return (
-    <>
+    <CurrentMessageContext.Provider
+      value={{ currentMessage, setCurrentMessage }}
+    >
       <div className='overscroll-behavior-contain flex h-dvh min-w-0 touch-pan-y flex-col bg-background'>
         <ChatHeader
           chatId={id}
@@ -211,7 +219,6 @@ export function Chat({
           votes={votes}
         />
         {/* )} */}
-
         <div className='sticky bottom-0 z-1 mx-auto flex w-full max-w-4xl gap-2 border-t-0 bg-background px-2 pb-3 md:px-4 md:pb-4'>
           {!isReadonly && (
             <MultimodalInput
@@ -232,7 +239,6 @@ export function Chat({
           )}
         </div>
       </div>
-
       <Artifact
         addToolApprovalResponse={addToolApprovalResponse}
         attachments={attachments}
@@ -251,7 +257,6 @@ export function Chat({
         stop={stop}
         votes={votes}
       />
-
       <AlertDialog
         onOpenChange={setShowCreditCardAlert}
         open={showCreditCardAlert}
@@ -281,6 +286,6 @@ export function Chat({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </CurrentMessageContext.Provider>
   );
 }
