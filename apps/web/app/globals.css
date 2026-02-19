@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "katex/dist/katex.min.css";
+@import 'tailwindcss';
+@import 'katex/dist/katex.min.css';
 
 /* include utility classes in streamdown */
 @source "../node_modules/streamdown/dist/index.js";
@@ -213,7 +213,7 @@
     pointer-events: none !important;
   }
 
-  *[class^="text-"] {
+  *[class^='text-'] {
     color: transparent;
     @apply rounded-md bg-foreground/20 select-none animate-pulse;
   }
@@ -315,4 +315,30 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@keyframes loading-bar {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateX(50%);
+    opacity: 0.5;
+  }
+  92% {
+    transform: translateX(100%);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.animate-loading-bar {
+  animation: loading-bar 4s ease-in-out forwards;
 }

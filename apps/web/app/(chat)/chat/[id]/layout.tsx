@@ -1,10 +1,6 @@
 // app/(chat)/chat/[id]/layout.tsx
-import { Navigator } from '@/components/thread/navigator';
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from '@/components/ui/resizable';
+import ChatShell from './chat-shell';
+import { Suspense } from 'react';
 
 export default async function ChatIdLayout({
   children,
@@ -14,19 +10,9 @@ export default async function ChatIdLayout({
   children: React.ReactNode;
 }) {
   const { id } = await params;
-
   return (
-    <ResizablePanelGroup direction='horizontal'>
-      <ResizablePanel defaultSize={72}>{children}</ResizablePanel>
-      <ResizableHandle withHandle />
-      <ResizablePanel
-        className='mr-2'
-        defaultSize={28}
-        maxSize={40}
-        minSize={12}
-      >
-        <Navigator id={id} />
-      </ResizablePanel>
-    </ResizablePanelGroup>
+    <Suspense fallback={<div className='flex h-dvh' />}>
+      <ChatShell id={id}>{children}</ChatShell>
+    </Suspense>
   );
 }
