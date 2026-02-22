@@ -14,6 +14,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useTheme } from 'next-themes';
 import { toast } from 'sonner';
 import { useLocalStorage, useWindowSize } from 'usehooks-ts';
 import {
@@ -88,6 +89,7 @@ function PureMultimodalInput({
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { width } = useWindowSize();
+  const { resolvedTheme } = useTheme();
 
   // const adjustHeight = useCallback(() => {
   //   if (textareaRef.current) {
@@ -329,8 +331,18 @@ function PureMultimodalInput({
 
       <div
         className={cn(
+          'transition-[background-image,box-shadow] duration-300',
+          messages.length === 0 && 'p-px',
           (status === 'submitted' || status === 'streaming') &&
-            'animate-loading-border bg-size-[200%_100%]'
+            'animate-loading-border bg-size-[200%_100%]',
+          messages.length === 0 &&
+            status !== 'submitted' &&
+            status !== 'streaming' &&
+            'input-focus-gradient',
+          messages.length === 0 &&
+            (resolvedTheme === 'light'
+              ? 'input-focus-gradient-light'
+              : 'input-focus-gradient-dark')
         )}
         style={{
           borderRadius: isInputExpanded ? '24px' : '30px',
@@ -347,13 +359,23 @@ function PureMultimodalInput({
       >
         <PromptInput
           className={cn(
-            'flex flex-row justify-between min-h-[60px] overflow-visible! border bg-background px-3 shadow-2xl focus-within:border-border hover:border-muted-foreground/50',
+            'flex flex-row justify-between min-h-[60px] overflow-visible! border bg-background px-3 shadow-2xl transition-colors duration-300',
+            messages.length === 0 &&
+              (resolvedTheme === 'light'
+                ? 'focus-within:border-green-800 focus-visible:border-green-800'
+                : 'focus-within:border-emerald-600 focus-visible:border-emerald-600'),
             isInputExpanded ? 'p-3 items-end' : 'items-center'
           )}
           style={{
-            borderRadius: isInputExpanded ? '20px' : '30px',
+            borderRadius: isInputExpanded
+              ? messages.length === 0
+                ? '23px'
+                : '20px'
+              : messages.length === 0
+              ? '29px'
+              : '30px',
             transition:
-              'border-radius 300ms cubic-bezier(0.4, 0, 0.2, 1), padding 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+              'border-radius 300ms cubic-bezier(0.4, 0, 0.2, 1), padding 300ms cubic-bezier(0.4, 0, 0.2, 1), border-color 300ms cubic-bezier(0.4, 0, 0.2, 1)',
             willChange: 'border-radius',
           }}
           onSubmit={(event) => {

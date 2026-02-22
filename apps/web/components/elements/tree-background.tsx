@@ -31,6 +31,8 @@ interface Leaf {
   wobbleSpeed: number;
   colorIndex: number;
   fallSpeed: number;
+  vx: number;
+  vy: number;
 }
 
 interface Firefly {
@@ -226,6 +228,8 @@ export function TreeBackground() {
           wobbleSpeed: Math.random() * 0.015 + 0.005,
           colorIndex: Math.floor(Math.random() * 5),
           fallSpeed: Math.random() * 0.3 + 0.1,
+          vx: 0,
+          vy: 0,
         });
       }
       leavesRef.current = leaves;
@@ -450,17 +454,39 @@ export function TreeBackground() {
         }
       });
 
-      // Floating leaves
+      // Floating leaves with cursor interaction
+      const cursorRadius = 120;
       leavesRef.current.forEach((leaf) => {
+        // Cursor repulsion force
+        const dx = leaf.x - mouseRef.current.x;
+        const dy = leaf.y - mouseRef.current.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < cursorRadius && dist > 0) {
+          const force = (1 - dist / cursorRadius) * 0.8;
+          const angle = Math.atan2(dy, dx);
+          leaf.vx += Math.cos(angle) * force;
+          leaf.vy += Math.sin(angle) * force;
+          // Spin the leaf faster when pushed
+          leaf.rotation += force * 0.15 * Math.sign(leaf.rotationSpeed);
+        }
+
+        // Apply friction to velocity (smooth decay)
+        leaf.vx *= 0.96;
+        leaf.vy *= 0.96;
+
+        // Natural movement
         leaf.rotation += leaf.rotationSpeed;
         const wobble =
           Math.sin(time * leaf.wobbleSpeed + leaf.wobbleOffset) * 1.5;
-        leaf.x += leaf.driftX + wobble * 0.1;
-        leaf.y += leaf.driftY + leaf.fallSpeed;
+        leaf.x += leaf.driftX + wobble * 0.1 + leaf.vx;
+        leaf.y += leaf.driftY + leaf.fallSpeed + leaf.vy;
 
         if (leaf.y > height + 20) {
           leaf.y = -20;
           leaf.x = Math.random() * width;
+          leaf.vx = 0;
+          leaf.vy = 0;
         }
         if (leaf.x < -20) leaf.x = width + 20;
         if (leaf.x > width + 20) leaf.x = -20;
