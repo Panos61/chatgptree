@@ -14,6 +14,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useTheme } from 'next-themes';
 import { toast } from 'sonner';
 import { useLocalStorage, useWindowSize } from 'usehooks-ts';
 import {
@@ -50,7 +51,9 @@ import type { VisibilityType } from './visibility-selector';
 function setCookie(name: string, value: string) {
   const maxAge = 60 * 60 * 24 * 365; // 1 year
   // biome-ignore lint/suspicious/noDocumentCookie: needed for client-side cookie setting
-  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${maxAge}`;
+  document.cookie = `${name}=${encodeURIComponent(
+    value
+  )}; path=/; max-age=${maxAge}`;
 }
 
 function PureMultimodalInput({
@@ -86,18 +89,19 @@ function PureMultimodalInput({
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { width } = useWindowSize();
+  const { resolvedTheme } = useTheme();
 
-  const adjustHeight = useCallback(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = '44px';
-    }
-  }, []);
+  // const adjustHeight = useCallback(() => {
+  //   if (textareaRef.current) {
+  //     textareaRef.current.style.height = '44px';
+  //   }
+  // }, []);
 
-  useEffect(() => {
-    if (textareaRef.current) {
-      adjustHeight();
-    }
-  }, [adjustHeight]);
+  // useEffect(() => {
+  //   if (textareaRef.current) {
+  //     adjustHeight();
+  //   }
+  // }, [adjustHeight]);
 
   const hasAutoFocused = useRef(false);
   useEffect(() => {
@@ -110,28 +114,28 @@ function PureMultimodalInput({
     }
   }, [width]);
 
-  const resetHeight = useCallback(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = '44px';
-    }
-  }, []);
+  // const resetHeight = useCallback(() => {
+  //   if (textareaRef.current) {
+  //     textareaRef.current.style.height = '44px';
+  //   }
+  // }, []);
 
   const [localStorageInput, setLocalStorageInput] = useLocalStorage(
     'input',
     ''
   );
 
-  useEffect(() => {
-    if (textareaRef.current) {
-      const domValue = textareaRef.current.value;
-      // Prefer DOM value over localStorage to handle hydration
-      const finalValue = domValue || localStorageInput || '';
-      setInput(finalValue);
-      adjustHeight();
-    }
-    // Only run once after hydration
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [adjustHeight, localStorageInput, setInput]);
+  // useEffect(() => {
+  //   if (textareaRef.current) {
+  //     const domValue = textareaRef.current.value;
+  //     // Prefer DOM value over localStorage to handle hydration
+  //     const finalValue = domValue || localStorageInput || '';
+  //     setInput(finalValue);
+  //     adjustHeight();
+  //   }
+  //   // Only run once after hydration
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [adjustHeight, localStorageInput, setInput]);
 
   useEffect(() => {
     setLocalStorageInput(input);
@@ -165,7 +169,7 @@ function PureMultimodalInput({
 
     setAttachments([]);
     setLocalStorageInput('');
-    resetHeight();
+    // resetHeight();
     setInput('');
 
     if (width && width > 768) {
@@ -180,7 +184,7 @@ function PureMultimodalInput({
     setLocalStorageInput,
     width,
     chatId,
-    resetHeight,
+    // resetHeight,
   ]);
 
   const uploadFile = useCallback(async (file: File) => {
@@ -295,6 +299,15 @@ function PureMultimodalInput({
     return () => textarea.removeEventListener('paste', handlePaste);
   }, [handlePaste]);
 
+  const [isInputExpanded, setIsInputExpanded] = useState(false);
+  useEffect(() => {
+    if (input.includes('\n')) {
+      setIsInputExpanded(true);
+    } else {
+      setIsInputExpanded(false);
+    }
+  }, [input]);
+
   return (
     <div className={cn('relative flex w-full flex-col gap-4', className)}>
       {messages.length === 0 &&
@@ -316,94 +329,145 @@ function PureMultimodalInput({
         type='file'
       />
 
-      <PromptInput
-        className='rounded-xl border border-border bg-background p-3 shadow-xs transition-all duration-200 focus-within:border-border hover:border-muted-foreground/50'
-        onSubmit={(event) => {
-          event.preventDefault();
-          if (!input.trim() && attachments.length === 0) {
-            return;
-          }
-          if (status !== 'ready') {
-            toast.error('Please wait for the model to finish its response!');
-          } else {
-            submitForm();
-          }
+      <div
+        className={cn(
+          'transition-[background-image,box-shadow] duration-300',
+          messages.length === 0 && 'p-px',
+          (status === 'submitted' || status === 'streaming') &&
+            'animate-loading-border bg-size-[200%_100%]',
+          messages.length === 0 &&
+            status !== 'submitted' &&
+            status !== 'streaming' &&
+            'input-focus-gradient',
+          messages.length === 0 &&
+            (resolvedTheme === 'light'
+              ? 'input-focus-gradient-light'
+              : 'input-focus-gradient-dark')
+        )}
+        style={{
+          borderRadius: isInputExpanded ? '24px' : '30px',
+          transition: 'border-radius 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+          willChange: 'border-radius',
+          ...(status === 'submitted' || status === 'streaming'
+            ? {
+                backgroundImage:
+                  'linear-gradient(90deg, #6366f1 0%, #8b5cf6 20%, #06b6d4 40%, #10b981 60%, #f59e0b 80%, #6366f1 100%)',
+                boxShadow: '0 0 20px 2px rgba(139, 92, 246, 0.3)',
+              }
+            : {}),
         }}
       >
-        {(attachments.length > 0 || uploadQueue.length > 0) && (
-          <div
-            className='flex flex-row items-end gap-2 overflow-x-scroll'
-            data-testid='attachments-preview'
-          >
-            {attachments.map((attachment) => (
-              <PreviewAttachment
-                attachment={attachment}
-                key={attachment.url}
-                onRemove={() => {
-                  setAttachments((currentAttachments) =>
-                    currentAttachments.filter((a) => a.url !== attachment.url)
-                  );
-                  if (fileInputRef.current) {
-                    fileInputRef.current.value = '';
-                  }
-                }}
-              />
-            ))}
+        <PromptInput
+          className={cn(
+            'flex flex-row justify-between min-h-[60px] overflow-visible! border bg-background px-3 shadow-2xl transition-colors duration-300',
+            messages.length === 0 &&
+              (resolvedTheme === 'light'
+                ? 'focus-within:border-green-800 focus-visible:border-green-800'
+                : 'focus-within:border-emerald-600 focus-visible:border-emerald-600'),
+            isInputExpanded ? 'p-3 items-end' : 'items-center'
+          )}
+          style={{
+            borderRadius: isInputExpanded
+              ? messages.length === 0
+                ? '23px'
+                : '20px'
+              : messages.length === 0
+              ? '29px'
+              : '30px',
+            transition:
+              'border-radius 300ms cubic-bezier(0.4, 0, 0.2, 1), padding 300ms cubic-bezier(0.4, 0, 0.2, 1), border-color 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+            willChange: 'border-radius',
+          }}
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (!input.trim() && attachments.length === 0) {
+              return;
+            }
+            if (status !== 'ready') {
+              toast.error('Please wait for the model to finish its response!');
+            } else {
+              submitForm();
+            }
+          }}
+        >
+          {(attachments.length > 0 || uploadQueue.length > 0) && (
+            <div
+              className='flex flex-row items-end gap-2 overflow-x-scroll'
+              data-testid='attachments-preview'
+            >
+              {attachments.map((attachment) => (
+                <PreviewAttachment
+                  attachment={attachment}
+                  key={attachment.url}
+                  onRemove={() => {
+                    setAttachments((currentAttachments) =>
+                      currentAttachments.filter((a) => a.url !== attachment.url)
+                    );
+                    if (fileInputRef.current) {
+                      fileInputRef.current.value = '';
+                    }
+                  }}
+                />
+              ))}
 
-            {uploadQueue.map((filename) => (
-              <PreviewAttachment
-                attachment={{
-                  url: '',
-                  name: filename,
-                  contentType: '',
-                }}
-                isUploading={true}
-                key={filename}
-              />
-            ))}
-          </div>
-        )}
-        <div className='flex flex-row items-start gap-1 sm:gap-2'>
-          <PromptInputTextarea
-            className='grow resize-none border-0! border-none! bg-transparent p-2 text-base outline-none ring-0 [-ms-overflow-style:none] [scrollbar-width:none] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 [&::-webkit-scrollbar]:hidden'
-            data-testid='multimodal-input'
-            disableAutoResize={true}
-            maxHeight={200}
-            minHeight={44}
-            onChange={handleInput}
-            placeholder='Send a message...'
-            ref={textareaRef}
-            rows={1}
-            value={input}
-          />
-        </div>
-        <PromptInputToolbar className='border-top-0! border-t-0! p-0 shadow-none dark:border-0 dark:border-transparent!'>
-          <PromptInputTools className='gap-0 sm:gap-0.5'>
+              {uploadQueue.map((filename) => (
+                <PreviewAttachment
+                  attachment={{
+                    url: '',
+                    name: filename,
+                    contentType: '',
+                  }}
+                  isUploading={true}
+                  key={filename}
+                />
+              ))}
+            </div>
+          )}
+          <div
+            className={cn(
+              'flex flex-row items-center gap-1 w-full sm:gap-2',
+              isInputExpanded ? 'items-end' : 'items-center'
+            )}
+          >
             <AttachmentsButton
               fileInputRef={fileInputRef}
               selectedModelId={selectedModelId}
               status={status}
             />
-            <ModelSelectorCompact
-              onModelChange={onModelChange}
-              selectedModelId={selectedModelId}
+            <PromptInputTextarea
+              data-testid='multimodal-input'
+              ref={textareaRef}
+              value={input}
+              placeholder='Ask anything'
+              className='grow resize-none border-none bg-transparent px-2 min-h-0! h-auto text-base outline-none ring-0 [-ms-overflow-style:none] [scrollbar-width:none] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 [&::-webkit-scrollbar]:hidden'
+              maxHeight={200}
+              minHeight={44}
+              onChange={handleInput}
             />
-          </PromptInputTools>
+          </div>
+          <PromptInputToolbar className='border-top-0! border-t-0! p-0 shadow-none dark:border-0 dark:border-transparent!'>
+            <PromptInputTools className='mr-3 gap-0 sm:gap-0.5'>
+              <ModelSelectorCompact
+                onModelChange={onModelChange}
+                selectedModelId={selectedModelId}
+              />
+            </PromptInputTools>
 
-          {status === 'submitted' ? (
-            <StopButton setMessages={setMessages} stop={stop} />
-          ) : (
-            <PromptInputSubmit
-              className='size-8 rounded-full bg-primary text-primary-foreground transition-colors duration-200 hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground'
-              data-testid='send-button'
-              disabled={!input.trim() || uploadQueue.length > 0}
-              status={status}
-            >
-              <ArrowUpIcon size={14} />
-            </PromptInputSubmit>
-          )}
-        </PromptInputToolbar>
-      </PromptInput>
+            {status === 'submitted' ? (
+              <StopButton setMessages={setMessages} stop={stop} />
+            ) : (
+              <PromptInputSubmit
+                className='size-8 rounded-full bg-primary text-primary-foreground transition-colors duration-200 hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground'
+                data-testid='send-button'
+                disabled={!input.trim() || uploadQueue.length > 0}
+                status={status}
+              >
+                <ArrowUpIcon size={14} />
+              </PromptInputSubmit>
+            )}
+          </PromptInputToolbar>
+        </PromptInput>
+      </div>
     </div>
   );
 }
@@ -487,8 +551,8 @@ function PureModelSelectorCompact({
 
   return (
     <ModelSelector onOpenChange={setOpen} open={open}>
-      <ModelSelectorTrigger asChild>
-        <Button className='h-8 justify-between px-2' variant='secondary'>
+      <ModelSelectorTrigger asChild className='w-32!'>
+        <Button className='h-8 justify-between px-2' variant='ghost'>
           {provider && <ModelSelectorLogo provider={provider} />}
           <ModelSelectorName>{selectedModel.name}</ModelSelectorName>
         </Button>

@@ -64,7 +64,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
       <Sidebar className='group-data-[side=left]:border-r-0'>
         <SidebarHeader>
           <SidebarMenu>
-            <div className='flex flex-row items-center justify-between mt-2'>
+            <div className='flex flex-row items-center justify-between'>
               <Link
                 className='flex flex-row items-center gap-3'
                 href='/'

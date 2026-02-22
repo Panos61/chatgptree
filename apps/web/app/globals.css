@@ -340,5 +340,68 @@
 }
 
 .animate-loading-bar {
-  animation: loading-bar 4s ease-in-out forwards;
+  animation: loading-bar 2.5s ease-in-out forwards;
+}
+
+@keyframes loading-border {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+.animate-loading-border {
+  animation: loading-border 2s ease-in-out infinite;
+}
+
+@keyframes focus-gradient-border {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+.input-focus-gradient:focus-within {
+  background-size: 200% 100%;
+  background-position: 0% 50%;
+  animation: focus-gradient-border 2.5s ease-in-out forwards;
+}
+
+/* Colors from tree-background + tree-background-v2 (greens + cherry blossom) */
+.input-focus-gradient.input-focus-gradient-light:focus-within {
+  background-image: linear-gradient(
+    90deg,
+    #107832 0%,
+    #16a34a 20%,
+    #22c55e 40%,
+    #f472b6 60%,
+    #ffb7c5 80%,
+    #107832 100%
+  );
+  box-shadow:
+    0 0 0 1px rgba(22, 163, 74, 0.25),
+    0 0 16px 2px rgba(244, 114, 182, 0.15);
+}
+
+.input-focus-gradient.input-focus-gradient-dark:focus-within {
+  background-image: linear-gradient(
+    90deg,
+    #16a34a 0%,
+    #4ade80 20%,
+    #86efac 40%,
+    #f472b6 60%,
+    #ffb7c5 80%,
+    #16a34a 100%
+  );
+  box-shadow:
+    0 0 0 1px rgba(74, 222, 128, 0.3),
+    0 0 16px 2px rgba(244, 114, 182, 0.12);
+}
+
+.input-focus-gradient:focus-within > form {
+  border-color: transparent;
 }

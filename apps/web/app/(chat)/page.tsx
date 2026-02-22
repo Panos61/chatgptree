@@ -4,6 +4,7 @@ import { Chat } from '@/components/chat';
 import { DataStreamHandler } from '@/components/data-stream-handler';
 import { DEFAULT_CHAT_MODEL } from '@/lib/ai/models';
 import { generateUUID } from '@/lib/utils';
+import { TreeBackground } from '@/components/elements/tree-background';
 
 export default function Page() {
   return (
@@ -37,6 +38,7 @@ async function NewChatPage() {
 
   return (
     <>
+      <TreeBackground />
       <Chat
         autoResume={false}
         id={id}

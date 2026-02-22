@@ -50,16 +50,17 @@ function PureChatHeader({
 
   const [isTemporary, setIsTemporary] = useState(false);
   const temporaryCTAcls = classNames(
-    'order-4 flex items-center gap-1 px-4 py-2 mr-1 rounded-3xl duration-300 cursor-pointer text-sm font-semibold hover:text-black hover:bg-zinc-300 md:ml-auto md:flex md:h-fit',
+    'order-4 flex items-center gap-1 px-3 py-1 mr-1 rounded-3xl duration-300 cursor-pointer text-sm font-semibold hover:text-black hover:bg-zinc-300/60 md:ml-auto md:flex md:h-fit',
     {
       'text-violet-500 bg-zinc-300 dark:text-violet-500 dark:bg-zinc-800':
         isTemporary,
-      'text-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-800': !isTemporary,
+      'text-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-800/60':
+        !isTemporary,
     }
   );
 
   return (
-    <header className='sticky flex items-center gap-2 bg-background px-2 py-1 md:px-2'>
+    <header className='sticky flex items-center gap-2 bg-transparent px-2 py-2 md:px-2'>
       {animationKey > 0 && (
         <div className='absolute bottom-0 left-0 h-px w-full overflow-hidden'>
           <div

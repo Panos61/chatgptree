@@ -5,22 +5,25 @@
     "ultracite/biome/next",
     "ultracite/biome/react"
   ],
-  "formatter": {
-    "indentStyle": "space",
-    "indentWidth": 2
-  },
+  "formatter": { "indentStyle": "space", "indentWidth": 2 },
   "javascript": {
-    "formatter": {
-      "quoteStyle": "single",
-      "jsxQuoteStyle": "single"
+    "formatter": { "quoteStyle": "single", "jsxQuoteStyle": "single" }
+  },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
     }
   },
+  "css": { "parser": { "tailwindDirectives": true } },
   "files": {
     "includes": [
       "**/*.ts",
       "**/*.tsx",
       "**/*.js",
       "**/*.jsx",
+      "**/*.css",
       "!node_modules",
       "!.next",
       "!ai-sdk",
@@ -50,9 +53,7 @@
         "noExcessiveCognitiveComplexity": "off",
         "useSimplifiedLogicExpression": "off"
       },
-      "a11y": {
-        "noSvgWithoutTitle": "off"
-      },
+      "a11y": { "noSvgWithoutTitle": "off" },
       "correctness": {
         "useUniqueElementIds": "off",
         "useImageSize": "off"
