@@ -56,26 +56,6 @@ function PureMessages({
 
   useDataStream();
 
-  // const conversationBlocks = useMemo(() => {
-  //   if (status === 'ready') {
-  //     return messages.reduce(
-  //       (
-  //         acc: Array<{ question: ChatMessage; answers: ChatMessage[] }>,
-  //         message
-  //       ) => {
-  //         if (message.role === 'user') {
-  //           acc.push({ question: message, answers: [] });
-  //         } else if (message.role === 'assistant' && acc.length > 0) {
-  //           acc[acc.length - 1].answers.push(message);
-  //         }
-  //         return acc;
-  //       },
-  //       []
-  //     );
-  //   }
-  //   return [];
-  // }, [messages, status]);
-
   useEffect(() => {
     const container = messagesContainerRef.current;
     if (!container) return;
@@ -180,29 +160,6 @@ function PureMessages({
                 setMessages={setMessages}
               />
             ))}
-          {/* {messages.map((message, index) => (
-            <PreviewMessage
-              addToolApprovalResponse={addToolApprovalResponse}
-              chatId={chatId}
-              isLoading={
-                status === 'streaming' && messages.length - 1 === index
-              }
-              isReadonly={isReadonly}
-              key={message.id}
-              message={message}
-              regenerate={regenerate}
-              requiresScrollPadding={
-                hasSentMessage && index === messages.length - 1
-              }
-              setMessages={setMessages}
-              vote={
-                votes
-                  ? votes.find((vote) => vote.messageId === message.id)
-                  : undefined
-              }
-            />
-          ))} */}
-
           {status === 'submitted' &&
             !messages.some((msg) =>
               msg.parts?.some(
@@ -215,7 +172,6 @@ function PureMessages({
           />
         </div>
       </div>
-
       <button
         type='button'
         aria-label='Scroll to bottom'

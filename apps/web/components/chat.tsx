@@ -205,7 +205,6 @@ export function Chat({
           isReadonly={isReadonly}
           selectedVisibilityType={initialVisibilityType}
         />
-        {/* {messages.length > 0 && ( */}
         <Messages
           addToolApprovalResponse={addToolApprovalResponse}
           chatId={id}
@@ -218,7 +217,6 @@ export function Chat({
           status={status}
           votes={votes}
         />
-        {/* )} */}
         <div className='sticky bottom-0 z-1 mx-auto flex w-full max-w-4xl gap-2 border-t-0 bg-transparent px-2 pb-3 md:px-4 md:pb-4'>
           {!isReadonly && (
             <MultimodalInput
