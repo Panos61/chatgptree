@@ -42,7 +42,8 @@
         "noMagicNumbers": "off",
         "noNestedTernary": "off",
         "useConsistentTypeDefinitions": "off",
-        "useAtIndex": "off"
+        "useAtIndex": "off",
+        "useConsistentObjectDefinitions": "off"
       },
       "nursery": {
         "noUnnecessaryConditions": "off",
