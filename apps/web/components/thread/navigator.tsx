@@ -9,7 +9,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import useSWR from 'swr';
 import { fetcher } from '@/lib/utils';
-import { CircleDotIcon, CircleIcon } from 'lucide-react';
+import { CircleDotIcon, CircleIcon, TextIcon } from 'lucide-react';
 import { Separator } from '../ui/separator';
 import { Skeleton } from '../ui/skeleton';
 import { ScrollArea } from '../ui/scroll-area';
@@ -124,9 +124,12 @@ export function Navigator({ id }: { id: string }) {
           {isLoading ? (
             <Skeleton className='w-full h-4' />
           ) : (
-            <span className='font-semibold text-sm overflow-hidden text-ellipsis min-w-0 line-clamp-1'>
-              {data?.navigator.chatTitle}
-            </span>
+            <div className='flex items-center gap-2'>
+              <TextIcon size={12} className='text-muted-foreground' />
+              <span className='font-semibold text-m overflow-hidden text-ellipsis min-w-0 line-clamp-1'>
+                {data?.navigator.chatTitle}
+              </span>
+            </div>
           )}
         </div>
         <Separator />
