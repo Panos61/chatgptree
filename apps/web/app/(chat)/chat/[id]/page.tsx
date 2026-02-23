@@ -11,7 +11,7 @@ import { convertToUIMessages } from '@/lib/utils';
 
 export default function Page(props: { params: Promise<{ id: string }> }) {
   return (
-    <Suspense fallback={<div className='flex h-dvh' />}>
+    <Suspense fallback={<div className="flex h-dvh" />}>
       <ChatPage params={props.params} />
     </Suspense>
   );

@@ -4,6 +4,7 @@ import type { UseChatHelpers } from '@ai-sdk/react';
 import type { UIMessage } from 'ai';
 import equal from 'fast-deep-equal';
 import { CheckIcon } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import {
   type ChangeEvent,
   type Dispatch,
@@ -14,7 +15,6 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useTheme } from 'next-themes';
 import { toast } from 'sonner';
 import { useLocalStorage, useWindowSize } from 'usehooks-ts';
 import {
@@ -120,7 +120,7 @@ function PureMultimodalInput({
   //   }
   // }, []);
 
-  const [localStorageInput, setLocalStorageInput] = useLocalStorage(
+  const [_localStorageInput, setLocalStorageInput] = useLocalStorage(
     'input',
     ''
   );
@@ -366,18 +366,6 @@ function PureMultimodalInput({
                 : 'focus-within:border-emerald-600 focus-visible:border-emerald-600'),
             isInputExpanded ? 'p-3 items-end' : 'items-center'
           )}
-          style={{
-            borderRadius: isInputExpanded
-              ? messages.length === 0
-                ? '23px'
-                : '20px'
-              : messages.length === 0
-              ? '29px'
-              : '30px',
-            transition:
-              'border-radius 300ms cubic-bezier(0.4, 0, 0.2, 1), padding 300ms cubic-bezier(0.4, 0, 0.2, 1), border-color 300ms cubic-bezier(0.4, 0, 0.2, 1)',
-            willChange: 'border-radius',
-          }}
           onSubmit={(event) => {
             event.preventDefault();
             if (!input.trim() && attachments.length === 0) {
@@ -388,6 +376,18 @@ function PureMultimodalInput({
             } else {
               submitForm();
             }
+          }}
+          style={{
+            borderRadius: isInputExpanded
+              ? messages.length === 0
+                ? '23px'
+                : '20px'
+              : messages.length === 0
+                ? '29px'
+                : '30px',
+            transition:
+              'border-radius 300ms cubic-bezier(0.4, 0, 0.2, 1), padding 300ms cubic-bezier(0.4, 0, 0.2, 1), border-color 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+            willChange: 'border-radius',
           }}
         >
           {(attachments.length > 0 || uploadQueue.length > 0) && (
@@ -435,14 +435,14 @@ function PureMultimodalInput({
               status={status}
             />
             <PromptInputTextarea
-              data-testid='multimodal-input'
-              ref={textareaRef}
-              value={input}
-              placeholder='Ask anything'
               className='grow resize-none border-none bg-transparent px-2 min-h-0! h-auto text-base outline-none ring-0 [-ms-overflow-style:none] [scrollbar-width:none] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 [&::-webkit-scrollbar]:hidden'
+              data-testid='multimodal-input'
               maxHeight={200}
               minHeight={44}
               onChange={handleInput}
+              placeholder='Ask anything'
+              ref={textareaRef}
+              value={input}
             />
           </div>
           <PromptInputToolbar className='border-top-0! border-t-0! p-0 shadow-none dark:border-0 dark:border-transparent!'>
