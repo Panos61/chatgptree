@@ -1,5 +1,7 @@
 'use client';
 
+import { CircleDotIcon, CircleIcon, TextIcon } from 'lucide-react';
+import useSWR from 'swr';
 import { Button } from '@/components/ui/button';
 import {
   Collapsible,
@@ -7,12 +9,10 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import useSWR from 'swr';
 import { fetcher } from '@/lib/utils';
-import { CircleDotIcon, CircleIcon, TextIcon } from 'lucide-react';
+import { ScrollArea } from '../ui/scroll-area';
 import { Separator } from '../ui/separator';
 import { Skeleton } from '../ui/skeleton';
-import { ScrollArea } from '../ui/scroll-area';
 
 type Navigator = {
   id: string;
@@ -64,9 +64,9 @@ export function Navigator({ id }: { id: string }) {
       <Collapsible key={entry.id}>
         <CollapsibleTrigger asChild>
           <Button
-            variant='ghost'
-            size='sm'
             className='group hover:bg-accent hover:text-accent-foreground w-full justify-start transition-none'
+            size='sm'
+            variant='ghost'
           >
             <CircleIcon className='text-muted-foreground size-3!' />
             {entry.label}
@@ -87,9 +87,9 @@ export function Navigator({ id }: { id: string }) {
         <Collapsible key={section.id}>
           <CollapsibleTrigger asChild>
             <Button
-              variant='ghost'
-              size='sm'
               className='group hover:bg-accent hover:text-accent-foreground w-full justify-start transition-none'
+              size='sm'
+              variant='ghost'
             >
               {/* <ChevronRightIcon className='size-3! transition-transform group-data-[state=open]:rotate-90' /> */}
               <CircleIcon className='text-muted-foreground size-3!' />
@@ -106,10 +106,10 @@ export function Navigator({ id }: { id: string }) {
     }
     return (
       <Button
-        key={section.id}
-        variant='link'
-        size='sm'
         className='text-foreground w-full justify-start gap-2'
+        key={section.id}
+        size='sm'
+        variant='link'
       >
         <CircleDotIcon className='text-muted-foreground size-3!' />
         <span className='text-muted-foreground text-sm'>{section.label}</span>
@@ -119,13 +119,13 @@ export function Navigator({ id }: { id: string }) {
 
   return (
     <>
-      <Tabs defaultValue='answers' className='w-full'>
+      <Tabs className='w-full' defaultValue='answers'>
         <div className='flex items-center px-4 py-3 w-full'>
           {isLoading ? (
             <Skeleton className='w-full h-4' />
           ) : (
             <div className='flex items-center gap-2'>
-              <TextIcon size={12} className='text-muted-foreground' />
+              <TextIcon className='text-muted-foreground' size={12} />
               <span className='font-semibold text-m overflow-hidden text-ellipsis min-w-0 line-clamp-1'>
                 {data?.navigator.chatTitle}
               </span>
@@ -142,7 +142,7 @@ export function Navigator({ id }: { id: string }) {
         {isLoading ? (
           <div className='flex flex-col gap-4 p-6'>
             {Array.from({ length: 10 }).map((_, i) => (
-              <Skeleton key={i} className='w-full h-4' />
+              <Skeleton className='w-full h-4' key={i} />
             ))}
           </div>
         ) : (

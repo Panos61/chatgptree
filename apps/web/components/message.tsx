@@ -81,9 +81,9 @@ const PurePreviewMessage = ({
   return (
     <div
       className='group/message fade-in w-full animate-in duration-200'
+      data-message-id={message.id}
       data-role={message.role}
       data-testid={`message-${message.role}`}
-      data-message-id={message.id}
     >
       <div
         className={cn('flex w-full items-start gap-2 md:gap-3', {
