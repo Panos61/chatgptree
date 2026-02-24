@@ -1,15 +1,15 @@
 'use client';
 
+import classNames from 'classnames';
 import { MessageCircleDashedIcon, PlusIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { memo, useState, useEffect, useRef } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { useWindowSize } from 'usehooks-ts';
 import { SidebarToggle } from '@/components/sidebar-toggle';
 import { Button } from '@/components/ui/button';
 import { useCurrentMessage } from '@/hooks/use-current-message';
 import { useSidebar } from './ui/sidebar';
 import type { VisibilityType } from './visibility-selector';
-import classNames from 'classnames';
 
 const gradients = [
   'linear-gradient(90deg, #6366f1 0%, #8b5cf6 40%, #06b6d4 100%)',
@@ -64,8 +64,9 @@ function PureChatHeader({
       {animationKey > 0 && (
         <div className='absolute bottom-0 left-0 h-px w-full overflow-hidden'>
           <div
-            key={animationKey}
             className='animate-loading-bar h-full w-[200%]'
+            id='messages-container-top'
+            key={animationKey}
             style={{
               background: currentGradient,
               filter: 'blur(0.5px)',
@@ -103,9 +104,9 @@ function PureChatHeader({
         </div>
       )}
       <button
-        type='button'
         className={temporaryCTAcls}
         onClick={() => setIsTemporary(!isTemporary)}
+        type='button'
       >
         <MessageCircleDashedIcon size={16} />
         Temporary Chat

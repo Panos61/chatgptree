@@ -10,7 +10,7 @@ import {
 import { after } from 'next/server';
 import { createResumableStreamContext } from 'resumable-stream';
 import { auth, type UserType } from '@/app/(auth)/auth';
-import { entitlementsByUserType } from '@/lib/ai/entitlements';
+// import { entitlementsByUserType } from '@/lib/ai/entitlements';
 import { type RequestHints, systemPrompt } from '@/lib/ai/prompts';
 import { getLanguageModel } from '@/lib/ai/providers';
 import { createDocument } from '@/lib/ai/tools/create-document';

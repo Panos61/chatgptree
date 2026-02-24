@@ -1,8 +1,8 @@
+import type { UseChatHelpers } from '@ai-sdk/react';
+import type { Vote } from '@/lib/db/schema';
+import type { ChatMessage } from '@/lib/types';
 import { PreviewMessage } from './message';
 import { Separator } from './ui/separator';
-import type { ChatMessage } from '@/lib/types';
-import type { Vote } from '@/lib/db/schema';
-import type { UseChatHelpers } from '@ai-sdk/react';
 
 function getQuestionText(message: ChatMessage): string {
   const textPart = message.parts?.find(
@@ -54,11 +54,11 @@ export function PureConversationBlock({
       )} */}
         {questionMessage && (
           <PreviewMessage
-            key={questionMessage.id}
             addToolApprovalResponse={addToolApprovalResponse}
             chatId={chatId}
             isLoading={false}
             isReadonly={isReadonly}
+            key={questionMessage.id}
             message={questionMessage}
             regenerate={regenerate}
             requiresScrollPadding={false}
@@ -70,7 +70,6 @@ export function PureConversationBlock({
             }
           />
         )}
-
         {answerMessages.map((message, index) => (
           <PreviewMessage
             addToolApprovalResponse={addToolApprovalResponse}
