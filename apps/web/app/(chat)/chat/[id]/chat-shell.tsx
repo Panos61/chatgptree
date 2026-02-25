@@ -1,16 +1,19 @@
 'use client';
 
 import useSWR from 'swr';
-import { Navigator } from '@/components/thread/navigator';
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
+import { Navigator } from './_components/navigator';
 
 const navigatorFetcher = async (url: string) => {
   const res = await fetch(url);
-  if (!res.ok) return null;
+  if (!res.ok) {
+    return null;
+  }
+
   return res.json();
 };
 
@@ -23,7 +26,7 @@ export default function ChatShell({
 }) {
   const { data } = useSWR(
     `http://localhost:8080/navigator/by-chat/${id}`,
-    navigatorFetcher,
+    navigatorFetcher
   );
 
   const showNavigator = !!data?.navigator;

@@ -1,6 +1,5 @@
-// app/(chat)/chat/[id]/layout.tsx
-import ChatShell from './chat-shell';
 import { Suspense } from 'react';
+import ChatShell from './chat-shell';
 
 export default async function ChatIdLayout({
   children,

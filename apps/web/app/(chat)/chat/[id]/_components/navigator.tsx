@@ -13,11 +13,11 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { fetcher } from '@/lib/utils';
-import { ScrollArea } from '../ui/scroll-area';
-import { Separator } from '../ui/separator';
-import { Skeleton } from '../ui/skeleton';
 
 type Navigator = {
   id: string;
