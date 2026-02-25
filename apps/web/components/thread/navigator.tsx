@@ -1,6 +1,11 @@
 'use client';
 
-import { CircleDotIcon, CircleIcon, TextIcon } from 'lucide-react';
+import {
+  CircleDotIcon,
+  CircleIcon,
+  SparklesIcon,
+  TextIcon,
+} from 'lucide-react';
 import useSWR from 'swr';
 import { Button } from '@/components/ui/button';
 import {
@@ -91,29 +96,33 @@ export function Navigator({ id }: { id: string }) {
               size='sm'
               variant='ghost'
             >
-              {/* <ChevronRightIcon className='size-3! transition-transform group-data-[state=open]:rotate-90' /> */}
               <CircleIcon className='text-muted-foreground size-3!' />
               {section.label}
             </Button>
           </CollapsibleTrigger>
-          {/* <CollapsibleContent className='style-lyra:ml-4 mt-1 ml-5'>
-            <div className='flex flex-col gap-1'>
-              {fileItem.items.map((child) => renderItem(child))}
-             </div> 
-          </CollapsibleContent> */}
         </Collapsible>
       );
     }
     return (
-      <Button
-        className='text-foreground w-full justify-start gap-2'
-        key={section.id}
-        size='sm'
-        variant='link'
-      >
-        <CircleDotIcon className='text-muted-foreground size-3!' />
-        <span className='text-muted-foreground text-sm'>{section.label}</span>
-      </Button>
+      <div className='group/section flex items-center gap-0.5' key={section.id}>
+        <Button
+          className='flex-1 justify-start gap-2 text-foreground'
+          size='sm'
+          variant='link'
+        >
+          <CircleDotIcon className='text-muted-foreground size-3!' />
+          <span className='text-muted-foreground text-sm'>{section.label}</span>
+        </Button>
+        <Button
+          className='size-7 shrink-0 opacity-0 transition-all duration-200 group-hover/section:opacity-100 hover:bg-purple-500/15 hover:text-purple-500 dark:hover:bg-purple-400/15 dark:hover:text-purple-400 hover:scale-110'
+          size='icon'
+          type='button'
+          variant='ghost'
+        >
+          <SparklesIcon className='size-3.5!' />
+          {/* <Spinner className='size-3.5!' /> */}
+        </Button>
+      </div>
     );
   };
 
