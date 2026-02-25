@@ -4,7 +4,7 @@ import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import useSWR, { useSWRConfig } from 'swr';
+import { useSWRConfig } from 'swr';
 import { unstable_serialize } from 'swr/infinite';
 import { ChatHeader } from '@/components/chat-header';
 import {
@@ -21,10 +21,9 @@ import { useArtifactSelector } from '@/hooks/use-artifact';
 import { useAutoResume } from '@/hooks/use-auto-resume';
 import { useChatVisibility } from '@/hooks/use-chat-visibility';
 import { CurrentMessageContext } from '@/hooks/use-current-message';
-import type { Vote } from '@/lib/db/schema';
 import { ChatSDKError } from '@/lib/errors';
 import type { Attachment, ChatMessage } from '@/lib/types';
-import { fetcher, fetchWithErrorHandlers, generateUUID } from '@/lib/utils';
+import { fetchWithErrorHandlers, generateUUID } from '@/lib/utils';
 import { Artifact } from './artifact';
 import { useDataStream } from './data-stream-provider';
 import { Messages } from './messages';
@@ -175,11 +174,6 @@ export function Chat({
     }
   }, [query, sendMessage, hasAppendedQuery, id]);
 
-  const { data: votes } = useSWR<Vote[]>(
-    messages.length >= 2 ? `/api/vote?chatId=${id}` : null,
-    fetcher
-  );
-
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const isArtifactVisible = useArtifactSelector((state) => state.isVisible);
 
@@ -207,7 +201,6 @@ export function Chat({
         />
         <Messages
           addToolApprovalResponse={addToolApprovalResponse}
-          chatId={id}
           isArtifactVisible={isArtifactVisible}
           isReadonly={isReadonly}
           messages={messages}
@@ -215,7 +208,6 @@ export function Chat({
           selectedModelId={initialChatModel}
           setMessages={setMessages}
           status={status}
-          votes={votes}
         />
         <div className='sticky bottom-0 z-1 mx-auto flex w-full max-w-4xl gap-2 border-t-0 bg-transparent px-2 pb-3 md:px-4 md:pb-4'>
           {!isReadonly && (
@@ -253,7 +245,6 @@ export function Chat({
         setMessages={setMessages}
         status={status}
         stop={stop}
-        votes={votes}
       />
       <AlertDialog
         onOpenChange={setShowCreditCardAlert}

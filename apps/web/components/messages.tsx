@@ -3,7 +3,6 @@ import { ArrowDownIcon } from 'lucide-react';
 import { useEffect, useMemo } from 'react';
 import { useCurrentMessage } from '@/hooks/use-current-message';
 import { useMessages } from '@/hooks/use-messages';
-import type { Vote } from '@/lib/db/schema';
 import type { ChatMessage } from '@/lib/types';
 import { ConversationBlock } from './conversation-block';
 import { useDataStream } from './data-stream-provider';
@@ -19,9 +18,7 @@ function getQuestionText(message: ChatMessage): string {
 
 type MessagesProps = {
   addToolApprovalResponse: UseChatHelpers<ChatMessage>['addToolApprovalResponse'];
-  chatId: string;
   status: UseChatHelpers<ChatMessage>['status'];
-  votes: Vote[] | undefined;
   messages: ChatMessage[];
   setMessages: UseChatHelpers<ChatMessage>['setMessages'];
   regenerate: UseChatHelpers<ChatMessage>['regenerate'];
@@ -34,9 +31,7 @@ type ConversationBlockProps = { question: ChatMessage; answers: ChatMessage[] };
 
 function PureMessages({
   addToolApprovalResponse,
-  chatId,
   status,
-  votes,
   messages,
   setMessages,
   regenerate,
@@ -149,7 +144,6 @@ function PureMessages({
               <ConversationBlock
                 addToolApprovalResponse={addToolApprovalResponse}
                 answerMessages={block.answers}
-                chatId={chatId}
                 hasSentMessage={hasSentMessage}
                 isLast={index === conversationBlocks.length - 1}
                 isReadonly={isReadonly}
@@ -158,7 +152,6 @@ function PureMessages({
                 regenerate={regenerate}
                 setMessages={setMessages}
                 status={status}
-                votes={votes}
               />
             ))}
           {status === 'submitted' &&

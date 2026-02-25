@@ -29,7 +29,6 @@ import {
   suggestion,
   type User,
   user,
-  vote,
 } from './schema';
 import { generateHashedPassword } from './utils';
 
@@ -105,7 +104,6 @@ export async function saveChat({
 
 export async function deleteChatById({ id }: { id: string }) {
   try {
-    await db.delete(vote).where(eq(vote.chatId, id));
     await db.delete(message).where(eq(message.chatId, id));
     await db.delete(stream).where(eq(stream.chatId, id));
 
@@ -135,7 +133,6 @@ export async function deleteAllChatsByUserId({ userId }: { userId: string }) {
 
     const chatIds = userChats.map((c) => c.id);
 
-    await db.delete(vote).where(inArray(vote.chatId, chatIds));
     await db.delete(message).where(inArray(message.chatId, chatIds));
     await db.delete(stream).where(inArray(stream.chatId, chatIds));
 
@@ -275,48 +272,6 @@ export async function getMessagesByChatId({ id }: { id: string }) {
     throw new ChatSDKError(
       'bad_request:database',
       'Failed to get messages by chat id'
-    );
-  }
-}
-
-export async function voteMessage({
-  chatId,
-  messageId,
-  type,
-}: {
-  chatId: string;
-  messageId: string;
-  type: 'up' | 'down';
-}) {
-  try {
-    const [existingVote] = await db
-      .select()
-      .from(vote)
-      .where(and(eq(vote.messageId, messageId)));
-
-    if (existingVote) {
-      return await db
-        .update(vote)
-        .set({ isUpvoted: type === 'up' })
-        .where(and(eq(vote.messageId, messageId), eq(vote.chatId, chatId)));
-    }
-    return await db.insert(vote).values({
-      chatId,
-      messageId,
-      isUpvoted: type === 'up',
-    });
-  } catch (_error) {
-    throw new ChatSDKError('bad_request:database', 'Failed to vote message');
-  }
-}
-
-export async function getVotesByChatId({ id }: { id: string }) {
-  try {
-    return await db.select().from(vote).where(eq(vote.chatId, id));
-  } catch (_error) {
-    throw new ChatSDKError(
-      'bad_request:database',
-      'Failed to get votes by chat id'
     );
   }
 }
@@ -479,12 +434,6 @@ export async function deleteMessagesByChatIdAfterTimestamp({
 
     if (messageIds.length > 0) {
       await db
-        .delete(vote)
-        .where(
-          and(eq(vote.chatId, chatId), inArray(vote.messageId, messageIds))
-        );
-
-      return await db
         .delete(message)
         .where(
           and(eq(message.chatId, chatId), inArray(message.id, messageIds))

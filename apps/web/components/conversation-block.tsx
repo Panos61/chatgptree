@@ -1,5 +1,4 @@
 import type { UseChatHelpers } from '@ai-sdk/react';
-import type { Vote } from '@/lib/db/schema';
 import type { ChatMessage } from '@/lib/types';
 import { PreviewMessage } from './message';
 import { Separator } from './ui/separator';
@@ -15,9 +14,7 @@ export function PureConversationBlock({
   questionMessage,
   answerMessages,
   addToolApprovalResponse,
-  chatId,
   status,
-  votes,
   regenerate,
   isReadonly,
   hasSentMessage,
@@ -27,9 +24,7 @@ export function PureConversationBlock({
   questionMessage: ChatMessage;
   answerMessages: ChatMessage[];
   addToolApprovalResponse: UseChatHelpers<ChatMessage>['addToolApprovalResponse'];
-  chatId: string;
   status: UseChatHelpers<ChatMessage>['status'];
-  votes: Vote[] | undefined;
   regenerate: UseChatHelpers<ChatMessage>['regenerate'];
   isReadonly: boolean;
   hasSentMessage: boolean;
@@ -55,7 +50,6 @@ export function PureConversationBlock({
         {questionMessage && (
           <PreviewMessage
             addToolApprovalResponse={addToolApprovalResponse}
-            chatId={chatId}
             isLoading={false}
             isReadonly={isReadonly}
             key={questionMessage.id}
@@ -63,17 +57,11 @@ export function PureConversationBlock({
             regenerate={regenerate}
             requiresScrollPadding={false}
             setMessages={setMessages}
-            vote={
-              votes
-                ? votes.find((vote) => vote.messageId === questionMessage.id)
-                : undefined
-            }
           />
         )}
         {answerMessages.map((message, index) => (
           <PreviewMessage
             addToolApprovalResponse={addToolApprovalResponse}
-            chatId={chatId}
             isLoading={
               status === 'streaming' && answerMessages.length - 1 === index
             }
@@ -85,11 +73,6 @@ export function PureConversationBlock({
               hasSentMessage && index === answerMessages.length - 1
             }
             setMessages={setMessages}
-            vote={
-              votes
-                ? votes.find((vote) => vote.messageId === message.id)
-                : undefined
-            }
           />
         ))}
       </div>
