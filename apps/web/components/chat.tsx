@@ -21,6 +21,7 @@ import { useArtifactSelector } from '@/hooks/use-artifact';
 import { useAutoResume } from '@/hooks/use-auto-resume';
 import { useChatVisibility } from '@/hooks/use-chat-visibility';
 import { CurrentMessageContext } from '@/hooks/use-current-message';
+import { ThreadReplyContext } from '@/hooks/use-thread-reply';
 import { ChatSDKError } from '@/lib/errors';
 import type { Attachment, ChatMessage } from '@/lib/types';
 import { fetchWithErrorHandlers, generateUUID } from '@/lib/utils';
@@ -189,92 +190,99 @@ export function Chat({
     text: string;
   } | null>(null);
 
+  const [threadReply, setThreadReply] = useState<{
+    id: string;
+    text: string;
+  } | null>(null);
+
   return (
-    <CurrentMessageContext.Provider
-      value={{ currentMessage, setCurrentMessage }}
-    >
-      <div className='overscroll-behavior-contain flex h-dvh min-w-0 touch-pan-y flex-col bg-background'>
-        <ChatHeader
-          chatId={id}
-          isReadonly={isReadonly}
-          selectedVisibilityType={initialVisibilityType}
-        />
-        <Messages
+    <ThreadReplyContext.Provider value={{ threadReply, setThreadReply }}>
+      <CurrentMessageContext.Provider
+        value={{ currentMessage, setCurrentMessage }}
+      >
+        <div className='overscroll-behavior-contain flex h-dvh min-w-0 touch-pan-y flex-col bg-background'>
+          <ChatHeader
+            chatId={id}
+            isReadonly={isReadonly}
+            selectedVisibilityType={initialVisibilityType}
+          />
+          <Messages
+            addToolApprovalResponse={addToolApprovalResponse}
+            isArtifactVisible={isArtifactVisible}
+            isReadonly={isReadonly}
+            messages={messages}
+            regenerate={regenerate}
+            selectedModelId={initialChatModel}
+            setMessages={setMessages}
+            status={status}
+          />
+          <div className='sticky bottom-0 z-1 mx-auto flex w-full max-w-4xl gap-2 border-t-0 bg-transparent px-2 pb-3 md:px-4 md:pb-4'>
+            {!isReadonly && (
+              <MultimodalInput
+                attachments={attachments}
+                chatId={id}
+                input={input}
+                messages={messages}
+                onModelChange={setCurrentModelId}
+                selectedModelId={currentModelId}
+                selectedVisibilityType={visibilityType}
+                sendMessage={sendMessage}
+                setAttachments={setAttachments}
+                setInput={setInput}
+                setMessages={setMessages}
+                status={status}
+                stop={stop}
+              />
+            )}
+          </div>
+        </div>
+        <Artifact
           addToolApprovalResponse={addToolApprovalResponse}
-          isArtifactVisible={isArtifactVisible}
+          attachments={attachments}
+          chatId={id}
+          input={input}
           isReadonly={isReadonly}
           messages={messages}
           regenerate={regenerate}
-          selectedModelId={initialChatModel}
+          selectedModelId={currentModelId}
+          selectedVisibilityType={visibilityType}
+          sendMessage={sendMessage}
+          setAttachments={setAttachments}
+          setInput={setInput}
           setMessages={setMessages}
           status={status}
+          stop={stop}
         />
-        <div className='sticky bottom-0 z-1 mx-auto flex w-full max-w-4xl gap-2 border-t-0 bg-transparent px-2 pb-3 md:px-4 md:pb-4'>
-          {!isReadonly && (
-            <MultimodalInput
-              attachments={attachments}
-              chatId={id}
-              input={input}
-              messages={messages}
-              onModelChange={setCurrentModelId}
-              selectedModelId={currentModelId}
-              selectedVisibilityType={visibilityType}
-              sendMessage={sendMessage}
-              setAttachments={setAttachments}
-              setInput={setInput}
-              setMessages={setMessages}
-              status={status}
-              stop={stop}
-            />
-          )}
-        </div>
-      </div>
-      <Artifact
-        addToolApprovalResponse={addToolApprovalResponse}
-        attachments={attachments}
-        chatId={id}
-        input={input}
-        isReadonly={isReadonly}
-        messages={messages}
-        regenerate={regenerate}
-        selectedModelId={currentModelId}
-        selectedVisibilityType={visibilityType}
-        sendMessage={sendMessage}
-        setAttachments={setAttachments}
-        setInput={setInput}
-        setMessages={setMessages}
-        status={status}
-        stop={stop}
-      />
-      <AlertDialog
-        onOpenChange={setShowCreditCardAlert}
-        open={showCreditCardAlert}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Activate AI Gateway</AlertDialogTitle>
-            <AlertDialogDescription>
-              This application requires{' '}
-              {process.env.NODE_ENV === 'production' ? 'the owner' : 'you'} to
-              activate Vercel AI Gateway.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                window.open(
-                  'https://vercel.com/d?to=%2F%5Bteam%5D%2F%7E%2Fai%3Fmodal%3Dadd-credit-card',
-                  '_blank'
-                );
-                window.location.href = '/';
-              }}
-            >
-              Activate
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </CurrentMessageContext.Provider>
+        <AlertDialog
+          onOpenChange={setShowCreditCardAlert}
+          open={showCreditCardAlert}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Activate AI Gateway</AlertDialogTitle>
+              <AlertDialogDescription>
+                This application requires{' '}
+                {process.env.NODE_ENV === 'production' ? 'the owner' : 'you'} to
+                activate Vercel AI Gateway.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => {
+                  window.open(
+                    'https://vercel.com/d?to=%2F%5Bteam%5D%2F%7E%2Fai%3Fmodal%3Dadd-credit-card',
+                    '_blank'
+                  );
+                  window.location.href = '/';
+                }}
+              >
+                Activate
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </CurrentMessageContext.Provider>
+    </ThreadReplyContext.Provider>
   );
 }

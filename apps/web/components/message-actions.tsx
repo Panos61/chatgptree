@@ -1,6 +1,8 @@
+import { CornerDownRightIcon } from 'lucide-react';
 import { memo } from 'react';
 import { toast } from 'sonner';
 import { useCopyToClipboard } from 'usehooks-ts';
+import { useThreadReply } from '@/hooks/use-thread-reply';
 import type { ChatMessage } from '@/lib/types';
 import { Action, Actions } from './elements/actions';
 import { CopyIcon, PencilEditIcon } from './icons';
@@ -15,6 +17,7 @@ export function PureMessageActions({
   setMode?: (mode: 'view' | 'edit') => void;
 }) {
   const [_, copyToClipboard] = useCopyToClipboard();
+  const { threadReply, setThreadReply } = useThreadReply();
 
   if (isLoading) {
     return null;
@@ -36,10 +39,9 @@ export function PureMessageActions({
     toast.success('Copied to clipboard!');
   };
 
-  // User messages get edit (on hover) and copy actions
   if (message.role === 'user') {
     return (
-      <Actions className='-mr-0.5 justify-end'>
+      <Actions className='mr-1 justify-end'>
         <div className='relative'>
           {setMode && (
             <Action
@@ -58,11 +60,25 @@ export function PureMessageActions({
       </Actions>
     );
   }
+  console.log('threadReply', threadReply?.text);
 
   return (
-    <Actions className='-ml-0.5'>
+    <Actions className='ml-1'>
       <Action onClick={handleCopy} tooltip='Copy'>
         <CopyIcon />
+      </Action>
+      <Action
+        onClick={() => {
+          setThreadReply({
+            id: message.id,
+            text: message.parts
+              .map((part) => (part.type === 'text' ? part.text : ''))
+              .join(''),
+          });
+        }}
+        tooltip='Reply in thread'
+      >
+        <CornerDownRightIcon />
       </Action>
     </Actions>
   );
