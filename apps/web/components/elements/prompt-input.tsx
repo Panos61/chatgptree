@@ -53,19 +53,19 @@ export const PromptInputReplyTo = () => {
   }
 
   return (
-    <div className='flex max-h-18 items-center justify-between gap-3 overflow-y-auto border-b border-border/60 py-3 px-4'>
-      <div className='flex min-w-0 items-center gap-2'>
-        <CornerDownRightIcon className='shrink-0' size={12} />
-        <div className='min-w-0 truncate text-sm font-medium text-muted-foreground'>
-          <span className='font-medium'>Replying to</span>{' '}
-          <span className='italic'>
-            &quot;{threadReply.text.slice(0, 50)}...&quot;
-          </span>
+    <div className='flex max-h-18 items-center justify-between gap-3 overflow-hidden border-b border-border/60 py-3 px-4'>
+      <div className='flex flex-col min-w-0 gap-2'>
+        <div className='flex items-center gap-1'>
+          <CornerDownRightIcon className='shrink-0' size={12} />
+          <span className='font-medium text-sm'>Replying to</span>{' '}
         </div>
+        <span className='min-w-0 text-sm font-medium text-muted-foreground italic truncate line-clamp-1'>
+          &quot;{threadReply.text}&quot;
+        </span>
       </div>
       <button
         aria-label='Cancel reply'
-        className='shrink-0 cursor-pointer hover:text-zinc-400'
+        className='shrink-0 self-start cursor-pointer hover:text-zinc-400'
         onClick={() => setThreadReply(null)}
         type='button'
       >
