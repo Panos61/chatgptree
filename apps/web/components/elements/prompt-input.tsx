@@ -57,7 +57,7 @@ export const PromptInputReplyTo = () => {
       <div className='flex flex-col min-w-0 gap-2'>
         <div className='flex items-center gap-1'>
           <CornerDownRightIcon className='shrink-0' size={12} />
-          <span className='font-medium text-sm'>Replying to</span>{' '}
+          <span className='font-medium text-sm'>Thread reply to</span>{' '}
         </div>
         <span className='min-w-0 text-sm font-medium text-muted-foreground italic truncate line-clamp-1'>
           &quot;{threadReply.text}&quot;
