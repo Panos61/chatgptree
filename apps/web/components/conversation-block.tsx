@@ -146,13 +146,6 @@ export function PureConversationBlock({
         data-question-id={questionMessage.id}
         data-question-text={questionText}
       >
-        {/* {questionText && (
-        <div className='sticky top-14 z-10 -mx-2 -mt-4 mb-2 border-b border-border/50 bg-background/95 px-4 py-2 backdrop-blur supports-backdrop-filter:bg-background/80 md:-mx-4 md:px-6'>
-          <span className='line-clamp-1 text-sm font-medium text-muted-foreground'>
-            {questionText}
-          </span>
-        </div>
-      )} */}
         {questionMessage && (
           <PreviewMessage
             addToolApprovalResponse={addToolApprovalResponse}
