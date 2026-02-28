@@ -1,7 +1,13 @@
 'use client';
 
 import type { ChatStatus } from 'ai';
-import { Loader2Icon, SendIcon, SquareIcon, XIcon } from 'lucide-react';
+import {
+  CornerDownRightIcon,
+  Loader2Icon,
+  SendIcon,
+  SquareIcon,
+  XIcon,
+} from 'lucide-react';
 import type {
   ComponentProps,
   HTMLAttributes,
@@ -17,6 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useThreadReply } from '@/hooks/use-thread-reply';
 import { cn } from '@/lib/utils';
 
 export type PromptInputProps = HTMLAttributes<HTMLFormElement>;
@@ -36,6 +43,36 @@ export type PromptInputTextareaProps = ComponentProps<typeof Textarea> & {
   maxHeight?: number;
   disableAutoResize?: boolean;
   resizeOnNewLinesOnly?: boolean;
+};
+
+export const PromptInputReplyTo = () => {
+  const { threadReply, setThreadReply } = useThreadReply();
+
+  if (!threadReply?.id) {
+    return null;
+  }
+
+  return (
+    <div className='flex max-h-18 items-center justify-between gap-3 overflow-hidden border-b border-border/60 py-3 px-4'>
+      <div className='flex flex-col min-w-0 gap-2'>
+        <div className='flex items-center gap-1'>
+          <CornerDownRightIcon className='shrink-0' size={12} />
+          <span className='font-medium text-sm'>Thread reply to</span>{' '}
+        </div>
+        <span className='min-w-0 text-sm font-medium text-muted-foreground italic truncate line-clamp-1'>
+          &quot;{threadReply.text}&quot;
+        </span>
+      </div>
+      <button
+        aria-label='Cancel reply'
+        className='shrink-0 self-start cursor-pointer hover:text-zinc-400'
+        onClick={() => setThreadReply(null)}
+        type='button'
+      >
+        <XIcon size={16} />
+      </button>
+    </div>
+  );
 };
 
 export const PromptInputTextarea = ({
@@ -73,26 +110,28 @@ export const PromptInputTextarea = ({
   };
 
   return (
-    <Textarea
-      className={cn(
-        'w-full! min-h-0! rounded-none px-0 shadow-none outline-hidden ring-0',
-        disableAutoResize
-          ? 'field-sizing-fixed'
-          : resizeOnNewLinesOnly
-          ? 'field-sizing-fixed'
-          : 'field-sizing-content max-h-[6lh]',
-        'bg-transparent dark:bg-transparent',
-        'focus-visible:ring-0',
-        className
-      )}
-      name='message'
-      onChange={(e) => {
-        onChange?.(e);
-      }}
-      onKeyDown={handleKeyDown}
-      placeholder={placeholder}
-      {...props}
-    />
+    <div className='m-1 w-full transition-all duration-300'>
+      <Textarea
+        className={cn(
+          'w-full! min-h-0! rounded-none px-0 shadow-none outline-hidden ring-0',
+          disableAutoResize
+            ? 'field-sizing-fixed'
+            : resizeOnNewLinesOnly
+              ? 'field-sizing-fixed'
+              : 'field-sizing-content max-h-[6lh]',
+          'bg-transparent dark:bg-transparent',
+          'focus-visible:ring-0',
+          className
+        )}
+        name='message'
+        onChange={(e) => {
+          onChange?.(e);
+        }}
+        onKeyDown={handleKeyDown}
+        placeholder={placeholder}
+        {...props}
+      />
+    </div>
   );
 };
 
@@ -114,14 +153,7 @@ export const PromptInputTools = ({
   className,
   ...props
 }: PromptInputToolsProps) => (
-  <div
-    className={cn(
-      'flex items-center gap-1',
-      '[&_button:first-child]:rounded-bl-xl',
-      className
-    )}
-    {...props}
-  />
+  <div className={cn('flex items-center gap-1', className)} {...props} />
 );
 
 export type PromptInputButtonProps = ComponentProps<typeof Button>;
@@ -133,7 +165,7 @@ export const PromptInputButton = ({
   ...props
 }: PromptInputButtonProps) => {
   const newSize =
-    size ?? Children.count(props.children) > 1 ? 'default' : 'icon';
+    (size ?? Children.count(props.children) > 1) ? 'default' : 'icon';
 
   return (
     <Button

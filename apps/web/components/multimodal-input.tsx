@@ -37,6 +37,7 @@ import type { Attachment, ChatMessage } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import {
   PromptInput,
+  PromptInputReplyTo,
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputToolbar,
@@ -359,12 +360,12 @@ function PureMultimodalInput({
       >
         <PromptInput
           className={cn(
-            'flex flex-row justify-between min-h-[60px] overflow-visible! border bg-background px-3 shadow-2xl transition-colors duration-300',
+            'flex flex-col min-h-[60px] overflow-visible! border bg-background px-3 shadow-2xl transition-colors duration-300',
             messages.length === 0 &&
               (resolvedTheme === 'light'
                 ? 'focus-within:border-green-800 focus-visible:border-green-800'
                 : 'focus-within:border-emerald-600 focus-visible:border-emerald-600'),
-            isInputExpanded ? 'p-3 items-end' : 'items-center'
+            isInputExpanded ? 'p-3' : ''
           )}
           onSubmit={(event) => {
             event.preventDefault();
@@ -390,62 +391,69 @@ function PureMultimodalInput({
             willChange: 'border-radius',
           }}
         >
-          {(attachments.length > 0 || uploadQueue.length > 0) && (
-            <div
-              className='flex flex-row items-end gap-2 overflow-x-scroll'
-              data-testid='attachments-preview'
-            >
-              {attachments.map((attachment) => (
-                <PreviewAttachment
-                  attachment={attachment}
-                  key={attachment.url}
-                  onRemove={() => {
-                    setAttachments((currentAttachments) =>
-                      currentAttachments.filter((a) => a.url !== attachment.url)
-                    );
-                    if (fileInputRef.current) {
-                      fileInputRef.current.value = '';
-                    }
-                  }}
-                />
-              ))}
-
-              {uploadQueue.map((filename) => (
-                <PreviewAttachment
-                  attachment={{
-                    url: '',
-                    name: filename,
-                    contentType: '',
-                  }}
-                  isUploading={true}
-                  key={filename}
-                />
-              ))}
-            </div>
-          )}
+          <PromptInputReplyTo />
           <div
             className={cn(
-              'flex flex-row items-center gap-1 w-full sm:gap-2',
+              'flex flex-row justify-between min-h-[60px]',
               isInputExpanded ? 'items-end' : 'items-center'
             )}
           >
-            <AttachmentsButton
-              fileInputRef={fileInputRef}
-              selectedModelId={selectedModelId}
-              status={status}
-            />
-            <PromptInputTextarea
-              className='grow resize-none border-none bg-transparent px-2 min-h-0! h-auto text-base outline-none ring-0 [-ms-overflow-style:none] [scrollbar-width:none] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 [&::-webkit-scrollbar]:hidden'
-              data-testid='multimodal-input'
-              maxHeight={200}
-              minHeight={44}
-              onChange={handleInput}
-              placeholder='Ask anything'
-              ref={textareaRef}
-              value={input}
-            />
-          </div>
-          <PromptInputToolbar className='border-top-0! border-t-0! p-0 shadow-none dark:border-0 dark:border-transparent!'>
+            {(attachments.length > 0 || uploadQueue.length > 0) && (
+              <div
+                className='flex flex-row items-end gap-2 overflow-x-scroll'
+                data-testid='attachments-preview'
+              >
+                {attachments.map((attachment) => (
+                  <PreviewAttachment
+                    attachment={attachment}
+                    key={attachment.url}
+                    onRemove={() => {
+                      setAttachments((currentAttachments) =>
+                        currentAttachments.filter((a) => a.url !== attachment.url)
+                      );
+                      if (fileInputRef.current) {
+                        fileInputRef.current.value = '';
+                      }
+                    }}
+                  />
+                ))}
+
+                {uploadQueue.map((filename) => (
+                  <PreviewAttachment
+                    attachment={{
+                      url: '',
+                      name: filename,
+                      contentType: '',
+                    }}
+                    isUploading={true}
+                    key={filename}
+                  />
+                ))}
+              </div>
+            )}
+            <div
+              className={cn(
+                'flex flex-row items-center gap-1 w-full sm:gap-2',
+                isInputExpanded ? 'items-end' : 'items-center'
+              )}
+            >
+              <AttachmentsButton
+                fileInputRef={fileInputRef}
+                selectedModelId={selectedModelId}
+                status={status}
+              />
+              <PromptInputTextarea
+                className='grow resize-none border-none bg-transparent px-2 min-h-0! h-auto text-base outline-none ring-0 [-ms-overflow-style:none] [scrollbar-width:none] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 [&::-webkit-scrollbar]:hidden'
+                data-testid='multimodal-input'
+                maxHeight={200}
+                minHeight={44}
+                onChange={handleInput}
+                placeholder='Ask anything'
+                ref={textareaRef}
+                value={input}
+              />
+            </div>
+            <PromptInputToolbar className='border-top-0! border-t-0! p-0 shadow-none dark:border-0 dark:border-transparent!'>
             <PromptInputTools className='mr-3 gap-0 sm:gap-0.5'>
               <ModelSelectorCompact
                 onModelChange={onModelChange}
@@ -465,7 +473,8 @@ function PureMultimodalInput({
                 <ArrowUpIcon size={14} />
               </PromptInputSubmit>
             )}
-          </PromptInputToolbar>
+            </PromptInputToolbar>
+          </div>
         </PromptInput>
       </div>
     </div>
