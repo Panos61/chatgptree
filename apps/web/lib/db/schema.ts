@@ -2,6 +2,7 @@ import type { InferSelectModel } from 'drizzle-orm';
 import {
   boolean,
   foreignKey,
+  integer,
   json,
   pgTable,
   primaryKey,
@@ -59,6 +60,31 @@ export const message = pgTable('Message_v2', {
 });
 
 export type DBMessage = InferSelectModel<typeof message>;
+
+export const thread = pgTable('Thread', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  chatId: uuid('chatId')
+    .notNull()
+    .references(() => chat.id),
+  parentMessageId: uuid('parentId')
+    .notNull()
+    .references(() => message.id),
+  createdAt: timestamp('createdAt').notNull(),
+});
+
+export const threadMessage = pgTable('ThreadMessage', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  threadId: uuid('threadId')
+    .notNull()
+    .references(() => thread.id),
+  role: varchar('role').notNull(),
+  parts: json('parts').notNull(),
+  attachments: json('attachments').notNull(),
+  orderIndex: integer('orderIndex').notNull(),
+  createdAt: timestamp('createdAt').notNull(),
+});
+
+export type ThreadMessage = InferSelectModel<typeof threadMessage>;
 
 export const document = pgTable(
   'Document',
